@@ -30,7 +30,7 @@ The project emphasizes **backwards compatibility**, allowing the `Runner` to han
 
 ## Building
 
-1.  Download the `make_pex` folder (containing the `Packer` project) and the `run_pex` folder (containing the `Runner` project) from the release assets.
+1.  Download the `make_pex` folder (containing the `Packer` project) and the `run_pex` folder (containing the `Runner` project).
 2.  Navigate into the `make_pex` directory.
 3.  Build the packer tool using Cargo:
     ```bash
