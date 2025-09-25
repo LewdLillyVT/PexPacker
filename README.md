@@ -30,15 +30,20 @@ The project emphasizes **backwards compatibility**, allowing the `Runner` to han
 
 ## Building
 
-1.  Clone the repository (or download the source files `Packer.rs` and `Runner.rs`).
-2.  Navigate to the directory containing the source files.
-3.  Run the following command to build both tools in release mode:
+1.  Download the `make_pex` folder (containing the `Packer` project) and the `run_pex` folder (containing the `Runner` project) from the release assets.
+2.  Navigate into the `make_pex` directory.
+3.  Build the packer tool using Cargo:
     ```bash
-    rustc -O Packer.rs -o packer
-    rustc -O Runner.rs -o runner
+    cargo build --release
     ```
-    *Note: Ensure all necessary dependencies (`serde`, `bincode`, `anyhow`, `sha2`, `hex`, `tempfile`) are available, which they are if you have a standard Rust installation and internet access for `rustc` to fetch them.*
-
+    The executable will be located at `make_pex/target/release/make_pex`.
+4.  Navigate into the `run_pex` directory.
+5.  Build the runner tool using Cargo:
+    ```bash
+    cargo build --release
+    ```
+    The executable will be located at `run_pex/target/release/run_pex`.
+    
 ## Usage
 
 ### Packer
