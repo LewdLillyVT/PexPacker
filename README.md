@@ -18,11 +18,15 @@ The project emphasizes **backwards compatibility**, allowing the `Runner` to han
 ## Features
 
 *   **Custom File Format (`.pex`)**: A binary format designed for packaged executables using `bincode` serialization.
-*   **Multi-Version Obfuscation & Verification**:
+*   **Multi-Version Obfuscation, Compression & Verification**:
     *   **V1 (Legacy)**: Basic XOR obfuscation of the original binary data.
     *   **V2 (Sorted)**: XOR obfuscation applied *after* sorting the binary data by byte value, using a sort map for restoration.
     *   **V3 (Verified)**: Includes V2 features plus a SHA-256 hash of the original data for integrity verification before execution.
-*   **Backwards Compatibility**: The `Runner` can automatically detect and correctly process `.pex` files created by V1, V2, or V3 versions of the `Packer`.
+    *   **V4 (Compressed)**: Includes V3 features plus zlib compression of the original data before sorting and obfuscation.
+    *   **V5 (Conditional Sort)**: Includes V4 features plus conditional binary sorting with randomized order for same-value bytes, using a file-derived salt.
+    *   **V6 (PDMO - Payload-Derived Map Obfuscation)**: Includes V5 features plus the sort map itself is encrypted using a key derived from the obfuscated payload data, adding another layer of obfuscation.
+*   **Backwards Compatibility**: The `Runner` can automatically detect and correctly process `.pex` files created by V1, V2, V3, V4, V5, or V6 versions of the `Packer`.
+
 
 ## Prerequisites
 
@@ -53,30 +57,31 @@ The `Packer` application takes an executable file as input and packages it into 
 1.  Build the `Packer` executable as described above.
 2.  Run the `packer` executable from your terminal:
     ```bash
-    ./packer
+    ./make_pex/target/release/make_pex # Or the specific name if built with Cargo
     ```
 3.  Follow the on-screen prompts:
     *   Enter the path to the executable you want to pack (e.g., `path/to/your/executable`).
-    *   Choose the desired packing version (1 for V3, 2 for V2, 3 for V1, or 4 for all versions).
+    *   Choose the desired packing version (1 for V6, 2 for V5, 3 for V4, 4 for V3, 5 for V2, 6 for V1, or 7 for all versions).
 
 The new `.pex` file(s) will be created in the current directory.
 
 ### Runner
 
-The `Runner` application automatically scans its current directory for `.pex` files. When found, it unpacks, verifies (if V3), and executes the original binary.
+The `Runner` application automatically scans its current directory for `.pex` files. When found, it unpacks, verifies (if applicable), and executes the original binary.
 
 1.  Build the `Runner` executable as described above.
 2.  Place the `runner` executable in the same directory as the `.pex` file(s) you want to run.
 3.  Run the `runner` executable from your terminal:
     ```bash
-    ./runner
+    ./run_pex/target/release/run_pex # Or the specific name if built with Cargo
     ```
 4.  The application will automatically detect, process, and execute compatible `.pex` files.
 
 ## Security Considerations
 
-*   **XOR Obfuscation**: The primary obfuscation method is XOR with a fixed key. This is **not** a strong cryptographic measure and should be considered obfuscation rather than encryption. It can deter casual analysis but is not secure against determined reverse engineering.
-*   **Integrity Verification (V3)**: Version 3 adds a SHA-256 hash to detect tampering or corruption, enhancing security for the integrity of the packaged executable.
+*   **XOR Obfuscation**: The primary obfuscation method is XOR with a fixed key per version. This is **not** a strong cryptographic measure and should be considered obfuscation rather than encryption. It can deter casual analysis but is not secure against determined reverse engineering.
+*   **Map Obfuscation (V6)**: The sort map in V6 is encrypted using a key derived from the payload itself, adding complexity to the reverse engineering process.
+*   **Integrity Verification (V3+)**: Versions V3 and later add a SHA-256 hash to detect tampering or corruption, enhancing security for the integrity of the packaged executable.
 *   **Execution**: The `Runner` executes unpacked binaries in a temporary file. Be cautious when running `.pex` files from untrusted sources, as the underlying executable will be executed.
 
 ## License
